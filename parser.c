@@ -75,7 +75,7 @@ be sure to conver those degrees to radians (M_PI is the constant
 for PI)
 ====================*/
 void parse_file ( char * filename,
-                  struct matrix * transform,
+                  struct stack * cstack,
                   struct matrix * edges,
                   struct matrix * polygons,
                   screen s) {
@@ -94,7 +94,7 @@ void parse_file ( char * filename,
   else
     f = fopen(filename, "r");
 
-  struct stack * cstack=new_stack();
+  //struct stack * cstack=new_stack();
   while ( fgets(line, sizeof(line), f) != NULL ) {
     line[strlen(line)-1]='\0';
     //printf(":%s:\n",line);
@@ -116,14 +116,14 @@ void parse_file ( char * filename,
 
     if (strncmp(line, "push", strlen(line))==0) {
       push(cstack);
-      printf("push\n");
-      printf("cstack top: %d\n",cstack->top);
-      print_stack(cstack);
+      //printf("push\n");
+      //printf("cstack top: %d\n",cstack->top);
+      //print_stack(cstack);
     }//end of push
 
     else if (strncmp(line, "pop", strlen(line))==0) {
       pop(cstack);
-      print_stack(cstack);
+      // print_stack(cstack);
     }//end of pop
     
     else if ( strncmp(line, "box", strlen(line)) == 0 ) {
@@ -227,8 +227,9 @@ void parse_file ( char * filename,
       /* printf("%lf %lf %lf\n", */
       /* 	xvals[0], yvals[0], zvals[0]); */ 
       tmp = make_scale( xvals[0], yvals[0], zvals[0]);
-      matrix_mult(tmp,peek(cstack));
-      print_stack(cstack);
+      matrix_mult(peek(cstack),tmp);
+      copy_matrix(tmp,peek(cstack));
+      //print_stack(cstack);
     }//end scale
 
     else if ( strncmp(line, "move", strlen(line)) == 0 ) {
@@ -239,8 +240,9 @@ void parse_file ( char * filename,
       /* printf("%lf %lf %lf\n", */
       /* 	xvals[0], yvals[0], zvals[0]); */ 
       tmp = make_translate( xvals[0], yvals[0], zvals[0]);
-      matrix_mult(tmp,peek(cstack));
-      print_stack(cstack);
+      matrix_mult(peek(cstack),tmp);
+      copy_matrix(tmp,peek(cstack));
+      //print_stack(cstack);
     }//end translate
 
     else if ( strncmp(line, "rotate", strlen(line)) == 0 ) {
@@ -258,26 +260,27 @@ void parse_file ( char * filename,
       else
         tmp = make_rotZ( theta );
 
-      matrix_mult(tmp, peek(cstack));
-      print_stack(cstack);
+      matrix_mult(peek(cstack),tmp);
+      copy_matrix(tmp,peek(cstack));
+      //print_stack(cstack);
     }//end rotate
 
-    else if ( strncmp(line, "clear", strlen(line)) == 0 ) {
+    //else if ( strncmp(line, "clear", strlen(line)) == 0 ) {
       //printf("clear\t%s", line);
-      edges->lastcol = 0;
-      polygons->lastcol = 0;
-    }//end clear
+      //edges->lastcol = 0;
+      //polygons->lastcol = 0;
+    //}//end clear
 
     //else if ( strncmp(line, "ident", strlen(line)) == 0 ) {
       //printf("IDENT\t%s", line);
       //ident(transform);
     //}//end ident
 
-    else if ( strncmp(line, "apply", strlen(line)) == 0 ) {
+    /*else if ( strncmp(line, "apply", strlen(line)) == 0 ) {
       //printf("APPLY\t%s", line);
       matrix_mult(transform, edges);
       matrix_mult(transform, polygons);
-    }//end apply
+      }//end apply*/
 
     else if ( strncmp(line, "display", strlen(line)) == 0 ) {
       //printf("DISPLAY\t%s", line);
@@ -297,5 +300,5 @@ void parse_file ( char * filename,
       save_extension(s, line);
     }//end save
   }
-  free_stack(cstack);
+  //free_stack(cstack);
 }
